@@ -1,7 +1,7 @@
 # gtasa-discord-plugin
 A Discord Rich Presence plugin for GTA:SA.
 
-![demo](https://i.imgur.com/AYDK30W.png)
+![demo](https://i.imgur.com/CVlNDl1.png)
 
 **It shows:**  
 **[Singleplayer]**  
