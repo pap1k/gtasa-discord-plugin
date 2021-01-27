@@ -34,8 +34,8 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -124,15 +124,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="game.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="samp.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Samp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="game.h" />
     <ClInclude Include="dllmain.h" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="lib\discord-rpc.h" />
-    <ClInclude Include="samp.h" />
+    <ClInclude Include="Samp.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="lib\discord-rpc.lib" />

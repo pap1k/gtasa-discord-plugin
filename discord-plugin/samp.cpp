@@ -1,21 +1,37 @@
 #include "samp.h"
 
-extern uint32_t dwSAMP_Addr;
+Samp* pSamp;
 
-bool SampInit()
+Samp::Samp()
 {
-	if (dwSAMP_Addr == NULL)
-		dwSAMP_Addr = (DWORD)GetModuleHandle("samp.dll");
-	if (dwSAMP_Addr == NULL)
-		return false;
+	dwSAMP_Addr = NULL;
+	stSAMP* SAMP = nullptr;
+}
 
-	if (SAMP == nullptr)
-		SAMP = *(stSAMP**)(dwSAMP_Addr + 0x21A0F8);
-	if (SAMP == nullptr)
-		return false;
+bool Samp::Init()
+{
+	if (dwSAMP_Addr == NULL) dwSAMP_Addr = (DWORD)GetModuleHandleA("samp.dll");
+	if (dwSAMP_Addr == NULL) return false;
+
+	if (SAMP == nullptr) SAMP = *(stSAMP**)(dwSAMP_Addr + 0x21A0F8);
+	if (SAMP == nullptr) return false;
+
+	if (SAMP->iGameState != 14) return false;
 
 	return true;
 }
 
-// global samp pointers
-stSAMP* SAMP = nullptr;
+stPlayerPool* Samp::GetPlayerPool()
+{
+	return SAMP->pPools->pPlayer;
+}
+
+std::string Samp::GetServerIp()
+{
+	return SAMP->szIP;
+}
+
+std::string Samp::GetServerName()
+{
+	return SAMP->szHostname;
+}

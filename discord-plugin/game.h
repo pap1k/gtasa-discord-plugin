@@ -1,12 +1,22 @@
 #pragma once
-#include "dllmain.h"
+#include <string>
+#include <map>
 
-#define APPLICATION_ID "698510493282992139"
+class Game
+{
+private:
+	bool IsAnyMissionActive();
+public:
+	std::string GetCurrentMission();
+	std::string GetCurrentZone();
 
-extern HMODULE module;
-extern std::map <std::string, std::string> MissionNames;
+	float GetProgress();
+	int GetPassedDays();
+	int GetCurrentWeapon();
+	bool IsPedExists();
+};
 
-const std::string WeaponNames[] =
+const std::string weaponNames[] =
 {
 	{ "Fist" },
 	{ "Brass Knuckles" },
@@ -58,7 +68,7 @@ const std::string WeaponNames[] =
 	{ "Fake Pistol" }
 };
 
-const std::string WeaponIcons[] =
+const std::string weaponIcons[] =
 {
 	{ "fist" },
 	{ "brassknuckleicon" },
@@ -120,7 +130,7 @@ struct ZoneStruct
 	double max_z;
 };
 
-const ZoneStruct zone[] = 
+const ZoneStruct zone[] =
 {
 	{ "Aldea Malvada", -1372.140, 2498.520, 0.000, -1277.590, 2615.350, 200.000 },
 	{ "Angel Pine", -2324.940, -2584.290, -6.1, -1964.220, -2212.110, 200.000 },
@@ -502,6 +512,5 @@ const ZoneStruct zone[] =
 	{ "Unbekannt", -50000, -50000, -1000, 50000, 50000, 3000 }
 };
 
-void Initialize();
-void Shutdown();
-void PluginThread();
+extern Game* pGame;
+extern std::map <std::string, std::string> missionNames;

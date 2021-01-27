@@ -1,47 +1,32 @@
 #include "game.h"
 
-HMODULE module = NULL;
+Game* pGame;
 
-void Initialize()
+bool Game::IsAnyMissionActive()
 {
-	CreateThread(0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(PluginThread), 0, 0, 0);
+	return *reinterpret_cast<int*>(0x96ABA0);
 }
 
-void Shutdown()
-{
-	Discord_Shutdown();
-}
-
-std::string GetCurrentMission()
+std::string Game::GetCurrentMission()
 {
 	// 0xA7A974 - times
-	std::string missionName;
-	
 	// 0x96ABA0 - mission status (on/off)
-	if (*reinterpret_cast<int*>(0x96ABA0))
-	{
-		char gxtMissionName[8];
-		memcpy(gxtMissionName, (void*)(0xC1B364), 8);
+	if (!pGame->IsAnyMissionActive())
+		return "None";
+	
+	char gxtMissionName[8];
+	memcpy(gxtMissionName, (void*)(0xC1B364), 8);
 
-		if (gxtMissionName == "")
-			missionName = "None";
-		else
-		{
-			if (MissionNames[gxtMissionName] == "")
-				missionName = "None";
-			else
-				missionName = MissionNames[gxtMissionName];
-		}
-	}
-	else
-	{
-		missionName = "None";
-	}
+	if (gxtMissionName == "")
+		return "None";
 
-	return missionName;
+	if (missionNames[gxtMissionName] == "")
+		return "None";
+
+	return missionNames[gxtMissionName];
 }
 
-std::string GetCurrentZone()
+std::string Game::GetCurrentZone()
 {
 	const float position_x = *reinterpret_cast<float*>(0xB6F2E4), position_y = *reinterpret_cast<float*>(0xB6F2E8), position_z = *reinterpret_cast<float*>(0x8CCC44);
 
@@ -56,91 +41,27 @@ std::string GetCurrentZone()
 	return std::string("San Andreas");
 }
 
-void PluginThread()
+float Game::GetProgress()
 {
-	std::string details, smallImageText, largeImageText;
-	// int partySize, partyMax;
-
-	DiscordRichPresence drp;
-
-	drp = { 0 };
-	drp.startTimestamp = time(0);
-
-	Discord_Initialize(APPLICATION_ID, 0, 0, 0);
-
-	if (GetModuleHandle("samp.dll"))
-	{
-		// SA-MP
-		while (!SampInit())
-			Sleep(500);
-
-		while (SAMP->iGameState != 14)
-			Sleep(100);
-
-		// Getting samp values
-		std::string serverIP = SAMP->szIP;
-		std::string serverName = cp1251_to_utf8(SAMP->szHostname);
-
-		// Getting player information
-		if (!SAMP->pPools->pPlayer)
-			return;
-
-		int playerId = SAMP->pPools->pPlayer->sLocalPlayerID;
-		std::string playerName = cp1251_to_utf8(SAMP->pPools->pPlayer->strLocalPlayerName.c_str());
-				
-		drp.smallImageKey = "samp_icon";
-
-		// Loop
-		while (true)
-		{
-			details = playerName + " [" + std::to_string(playerId) + "]";
-			largeImageText = "Location: " + GetCurrentZone();
-			smallImageText = "Playing SA-MP";
-			
-			// Sending data
-			drp.largeImageKey = WeaponIcons[*reinterpret_cast<int*>(0xBAA410)].c_str();
-			drp.largeImageText = largeImageText.c_str();
-			drp.smallImageText = smallImageText.c_str();
-			drp.details = details.c_str();
-			drp.state = serverName.c_str();
-
-			Discord_UpdatePresence(&drp);
-
-			Sleep(15000);
-		}
-	}
-	else
-	{
-		// Single Player
-		char state[256];
-		drp.smallImageKey = "game_icon";
-
-		// Loop
-		while (true)
-		{
-			if (*reinterpret_cast<int*>(0xB6F5F0))
-			{
-				details = "Mission: " + GetCurrentMission();
-				sprintf_s(state, "Progress: %.2f%%", (*reinterpret_cast<float*>(0xA4A61C)));
-				largeImageText = "Location: " + GetCurrentZone();
-				smallImageText = std::to_string(*reinterpret_cast<int*>(0xB79038)) + " day(s) passed.";
-
-				// Sending data
-				drp.largeImageKey = WeaponIcons[*reinterpret_cast<int*>(0xBAA410)].c_str();
-				drp.largeImageText = largeImageText.c_str();
-				drp.smallImageText = smallImageText.c_str();
-				drp.details = details.c_str();
-				drp.state = state;
-
-				Discord_UpdatePresence(&drp);
-
-				Sleep(15000);
-			}
-		}
-	}
+	return *reinterpret_cast<float*>(0xA4A61C);
 }
 
-std::map <std::string, std::string> MissionNames =
+int Game::GetPassedDays()
+{
+	return *reinterpret_cast<int*>(0xB79038);
+}
+
+int Game::GetCurrentWeapon()
+{
+	return *reinterpret_cast<int*>(0xBAA410);
+}
+
+bool Game::IsPedExists()
+{
+	return *reinterpret_cast<int*>(0xB6F5F0);
+}
+
+std::map <std::string, std::string> missionNames =
 {
 	{"AMBULAE", "Paramedic (Sub-Mission)"},
 	{"BCESAR2", "King in Exile"},

@@ -1,12 +1,13 @@
 #pragma once
-
-#include <windows.h>
-#include <ctime>
 #include <string>
-#include <map>
-
+#include <vector>
+#include <ctime>
+#include <windows.h>
 #include "discord-rpc.h"
-#include "game.h"
-#include "samp.h"
+
+#include "Game.h"
+#include "Samp.h"
+
+#define APPLICATION_ID "698510493282992139"
 
 std::string cp1251_to_utf8(const char* str);

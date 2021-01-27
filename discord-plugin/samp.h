@@ -1,5 +1,7 @@
 #pragma once
-#include "dllmain.h"
+#include <string>
+#include <cstdint>
+#include <windows.h>
 
 #pragma pack(push, 1)
 struct stSAMPPools
@@ -14,7 +16,6 @@ struct stSAMPPools
 	struct stVehiclePool*		pVehicle;
 	struct stPickupPool*		pPickup;
 };
-
 struct stSAMP
 {
 	void*						pUnk0;
@@ -32,7 +33,6 @@ struct stSAMP
 	void*						pRakClientInterface;
 	struct stSAMPPools*			pPools;
 };
-
 struct stPlayerPool
 {
 	uint32_t					ulMaxPlayerID;
@@ -48,8 +48,19 @@ struct stPlayerPool
 };
 #pragma pack(pop)
 
-// Functions
-bool SampInit();
+class Samp
+{
+private:
+	uint32_t dwSAMP_Addr;
+	struct stSAMP* SAMP;
+public:
+	Samp::Samp();
 
-// global pointer externals
-extern struct stSAMP* SAMP;
+	bool Init();
+
+	stPlayerPool* GetPlayerPool();
+	std::string GetServerIp();
+	std::string GetServerName();
+};
+
+extern Samp* pSamp;
