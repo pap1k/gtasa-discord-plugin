@@ -11,3 +11,5 @@ game icon, current weapon icon, current mission, progress (in percentage), in-ga
 samp icon, current weapon icon, your nickname[id], current server, current location (when you hover over the weapon icon).  
   
 **Just like any other ASI plugin, you are gonna need an ASI loader to use this one.**
+
+**if you want to edit the code, then select the "Release x86" configuration, everything is configured there**
