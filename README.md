@@ -1,15 +1,4 @@
 # gtasa-discord-plugin
-A Discord Rich Presence plugin for GTA:SA.
+[Official thread on BLASTHACK](https://www.blast.hk/threads/54432/)
 
-![demo](https://i.imgur.com/CVlNDl1.png)
-
-**It shows:**  
-**[Singleplayer]**  
-game icon, current weapon icon, current mission, progress (in percentage), in-game days passed(when you hover over the game icon) and current location (when you hover over the weapon icon).  
-  
-**[SA-MP]**  
-samp icon, current weapon icon, your nickname[id], current server, current location (when you hover over the weapon icon).  
-  
-**Just like any other ASI plugin, you are gonna need an ASI loader to use this one.**
-
-**if you want to edit the code, then select the "Release x86" configuration, everything is configured there**
+Set Release-x86 configuration before compile
