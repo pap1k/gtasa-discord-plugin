@@ -26,19 +26,35 @@ std::string Game::GetCurrentMission()
 	return missionNames[gxtMissionName];
 }
 
-std::string Game::GetCurrentZone()
+void Game::GetCurrentZone(char *buf)
 {
-	const float position_x = *reinterpret_cast<float*>(0xB6F2E4), position_y = *reinterpret_cast<float*>(0xB6F2E8), position_z = *reinterpret_cast<float*>(0x8CCC44);
+	if (GetCurrentInterior() != 0)
+	{
+		sprintf_s(buf, 128, u8"Не принимает сигналы со спутника");
+		return;
+	}
+	const float position_x = *reinterpret_cast<float*>(0xB6F2E4),
+				position_y = *reinterpret_cast<float*>(0xB6F2E8),
+				position_z = *reinterpret_cast<float*>(0x8CCC44);
 
 	for (int i = 0; i < sizeof(zone) / sizeof(zone[0]); i++)
 	{
 		if (position_x > zone[i].min_x && position_y > zone[i].min_y && position_z > zone[i].min_z && position_x < zone[i].max_x && position_y < zone[i].max_y && position_z < zone[i].max_z)
 		{
-			return zone[i].zone_name;
+			if (IsPedInVehicle())
+				sprintf_s(buf, 128, u8"Едет %s", zone[i].zone_name.c_str());
+			else
+				sprintf_s(buf, 128, u8"Стоит %s", zone[i].zone_name.c_str());
+			return;
 		}
-	}
 
-	return std::string("San Andreas");
+	}
+	sprintf_s(buf, 128, u8"Где-то в San Andreas...");
+}
+
+int Game::GetCurrentInterior()
+{
+	return *reinterpret_cast<int*>(0xA4ACE8);
 }
 
 float Game::GetProgress()
@@ -59,6 +75,11 @@ int Game::GetCurrentWeapon()
 bool Game::IsPedExists()
 {
 	return *reinterpret_cast<int*>(0xB6F5F0);
+}
+
+bool Game::IsPedInVehicle()
+{
+	return *reinterpret_cast<int*>(0xBA18FC) != 0;
 }
 
 std::map <std::string, std::string> missionNames =

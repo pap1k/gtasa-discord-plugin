@@ -1,120 +1,150 @@
 #include "dllmain.h"
 
+enum server {
+	rpg = 0,
+	rp1,
+	rp2,
+	unk
+};
+
+struct stServerInfo {
+	server serverMode;
+	std::string largeImageKey;
+	std::string largeImageText;
+	std::string smallImageKey;
+	std::string smallImageText;
+	std::string playerInfo;
+};
+
+server GetServerMode(std::string szIP)
+{
+	if (szIP == "185.169.134.83")
+		return server::rpg;
+	if (szIP == "185.169.134.84")
+		return server::rp1;
+	if (szIP == "185.169.134.85")
+		return server::rp2;
+	return server::unk;
+}
+
+stServerInfo* UpdateServerInfo(Samp* pSamp) {
+	auto ServerInfo = new stServerInfo();
+
+	ServerInfo->serverMode = GetServerMode(pSamp->GetServerIp());
+	if (ServerInfo->serverMode == server::unk)
+		return 0;
+
+	ServerInfo->smallImageKey = "trinity";
+	ServerInfo->smallImageText = "Trinity GTA";
+
+	if (ServerInfo->serverMode == server::rp1)
+	{
+		ServerInfo->largeImageKey = "rp1";
+		ServerInfo->largeImageText = "Server: Role Play 1";
+	}
+	else if (ServerInfo->serverMode == server::rp2)
+	{
+		ServerInfo->largeImageKey = "rp2";
+		ServerInfo->largeImageText = "Server: Role Play 2";
+	}
+	else
+	{
+		ServerInfo->largeImageKey = "rpg";
+		ServerInfo->largeImageText = "Server: RPG";
+	}
+
+	auto infostr = pSamp->GetPlayerPool()->strLocalPlayerName + "[" + std::to_string(pSamp->GetPlayerPool()->sLocalPlayerID) + "]";
+
+	if (pSamp->GetPlayerPool()->iLocalPlayerScore != 0)
+		infostr += " || " + std::to_string(pSamp->GetPlayerPool()->iLocalPlayerScore) + " LVL";
+
+	ServerInfo->playerInfo = infostr;
+
+	return ServerInfo;
+}
+
 void MainThread()
 {
+	bool display_pos = false;
+
+	//init settings
+
+	mINI::INIFile sets(INI_FILE);
+	mINI::INIStructure ini;
+
+	sets.read(ini);
+
+	if (ini["discord_activity"]["display_location"] == "")
+	{
+		ini["discord_activity"]["display_location"] = "1";
+		sets.write(ini);
+	}
+	display_pos = ini["discord_activity"]["display_location"] == "1";
+
 	while (*(DWORD*)0xC8D4C0 != 9)
 		Sleep(350);
 
 	pGame = new Game();
-	std::string details, smallImageText, largeImageText;
-	// int partySize, partyMax;
+	
+	bool dsloop = true;
+	time_t lastUpdatetime = time(0);
+	time_t startTimestamp = time(0);
 
 	DiscordRichPresence drp;
 
 	drp = { 0 };
-	drp.startTimestamp = time(0);
+	drp.startTimestamp = startTimestamp;
 
-	Discord_Initialize(APPLICATION_ID, 0, 0, 0);
+	Discord_Initialize(DISCORD_APPLICATION_ID, 0, 0, 0);
 	
-	if (GetModuleHandleA("samp.dll"))
+	if (GetModuleHandleA("samp.dll")) // only samp
 	{
 		pSamp = new Samp();
 
-		// SA-MP
 		while (!pSamp->Init())
 			Sleep(350);
-
-		// Getting samp values
-		std::string serverIP = pSamp->GetServerIp();
-		std::string serverName = cp1251_to_utf8(pSamp->GetServerName().c_str()); // 
 
 		// Getting player information
 		if (!pSamp->GetPlayerPool())
 			return;
 
-		int playerId = pSamp->GetPlayerPool()->sLocalPlayerID;
-		std::string playerName = cp1251_to_utf8(pSamp->GetPlayerPool()->strLocalPlayerName.c_str()); // 
+		bool isFirst = true;
 
-		drp.smallImageKey = "samp_icon";
-
-		// Loop
-		while (true)
+		while (dsloop)
 		{
 			if (pGame->IsPedExists())
 			{
-				details = playerName + " [" + std::to_string(playerId) + "]";
-				largeImageText = "Location: " + pGame->GetCurrentZone();
-				smallImageText = "Playing SA-MP";
-
-				// Sending data
-				drp.largeImageKey = weaponIcons[pGame->GetCurrentWeapon()].c_str();
-				drp.largeImageText = largeImageText.c_str();
-				drp.smallImageText = smallImageText.c_str();
-				drp.details = details.c_str();
-				drp.state = serverName.c_str();
+				stServerInfo* ServerInfo = UpdateServerInfo(pSamp);
+				
+				if (display_pos)
+				{
+					char buf[128];
+					pGame->GetCurrentZone(buf);
+					drp.details = buf;
+				}
+				else {
+					drp.details = u8"Не принимает сигналы со спутника";
+				}
+				drp.state = ServerInfo->playerInfo.c_str();
+				drp.smallImageText = ServerInfo->smallImageText.c_str();
+				drp.smallImageKey = ServerInfo->smallImageKey.c_str();
+				drp.largeImageText = ServerInfo->largeImageText.c_str();
+				drp.largeImageKey = ServerInfo->largeImageKey.c_str();
 
 				Discord_UpdatePresence(&drp);
+				lastUpdatetime = time(0);
 
-				Sleep(15000);
+				Sleep(1000*DISCORD_SENDRATE);
 			}
-		}
-	}
-	else
-	{
-		// Single Player
-		char state[256];
-		drp.smallImageKey = "game_icon";
-
-		// Loop
-		while (true)
-		{
-			if (pGame->IsPedExists())
+			if (lastUpdatetime + DISCORD_TURNOFF_DELAY_SEC < time(0))
 			{
-				details = "Mission: " + pGame->GetCurrentMission();
-				sprintf_s(state, "Progress: %.2f%%", pGame->GetProgress());
-				largeImageText = "Location: " + pGame->GetCurrentZone();
-				smallImageText = std::to_string(pGame->GetPassedDays()) + " day(s) passed.";
-
-				// Sending data
-				drp.largeImageKey = weaponIcons[pGame->GetCurrentWeapon()].c_str();
-				drp.largeImageText = largeImageText.c_str();
-				drp.smallImageText = smallImageText.c_str();
-				drp.details = details.c_str();
-				drp.state = state;
-
-				Discord_UpdatePresence(&drp);
-
-				Sleep(15000);
+				pSamp->addMessageToChat(-1, "[by papercut] За последние %d секунд не удалось обновить данные.", DISCORD_TURNOFF_DELAY_SEC);
+				pSamp->addMessageToChat(-1, "[by papercut] Плагин завершает работу.");
+				dsloop = false;
+				Discord_Shutdown();
 			}
 		}
 	}
-}
-
-std::string cp1251_to_utf8(const char* str)
-{
-	std::string res;
-	int result_u, result_c;
-	result_u = MultiByteToWideChar(1251, 0, str, -1, 0, 0);
-	if (!result_u) { return 0; }
-	wchar_t* ures = new wchar_t[result_u];
-	if (!MultiByteToWideChar(1251, 0, str, -1, ures, result_u)) {
-		delete[] ures;
-		return 0;
-	}
-	result_c = WideCharToMultiByte(65001, 0, ures, -1, 0, 0, 0, 0);
-	if (!result_c) {
-		delete[] ures;
-		return 0;
-	}
-	char* cres = new char[result_c];
-	if (!WideCharToMultiByte(65001, 0, ures, -1, cres, result_c, 0, 0)) {
-		delete[] cres;
-		return 0;
-	}
-	delete[] ures;
-	res.append(cres);
-	delete[] cres;
-	return res;
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD reason, LPVOID lpReserved)
