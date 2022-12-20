@@ -1,0 +1,12 @@
+﻿################################################################################
+# Данный GITIGNORE-файл был автоматически создан Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/discord-plugin/FileContentIndex
+/.vs/discord-plugin/v17
+/.vs/discord-plugin/Release/
+*.tlog
+*.log
+*.obj
+*.pdb
+/discord-plugin/Release
