@@ -26,6 +26,13 @@ std::string Game::GetCurrentMission()
 	return missionNames[gxtMissionName];
 }
 
+void Game::FillZones(nlohmann::json data)
+{
+	int i = 0;
+	for (auto line : data)
+		zone[i++] = { (std::string)line["name"], (double)line["pos"][0], (double)line["pos"][1], (double)line["pos"][2], (double)line["pos"][3], (double)line["pos"][4], (double)line["pos"][5] };
+}
+
 void Game::GetCurrentZone(char *buf)
 {
 	if (GetCurrentInterior() != 0)

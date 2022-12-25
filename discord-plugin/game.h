@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <map>
+#include "json.hpp"
 
 class Game
 {
@@ -8,6 +9,7 @@ private:
 	bool IsAnyMissionActive();
 public:
 	std::string GetCurrentMission();
+	void FillZones(nlohmann::json data);
 	void GetCurrentZone(char* buf);
 
 	float GetProgress();
@@ -131,9 +133,8 @@ struct ZoneStruct
 	double max_y;
 	double max_z;
 };
-
-
-const ZoneStruct zone[] =
+static ZoneStruct zone1[377];
+static ZoneStruct zone[] =
 {
 	{ u8"около заброшенного города RC", -1372.140, 2498.520, 0.000, -1277.590, 2615.350, 200.000 },
 	{ u8"в районе Angel Pine", -2324.940, -2584.290, -6.1, -1964.220, -2212.110, 200.000 },

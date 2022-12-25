@@ -103,7 +103,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <PreprocessorDefinitions>SAMP_R3_COMPILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SAMP_R3_COMPILE;TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -133,6 +133,7 @@
     <ClInclude Include="dllmain.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="ini.hpp" />
+    <ClInclude Include="json.hpp" />
     <ClInclude Include="lib\discord-rpc.h" />
     <ClInclude Include="Samp.h" />
   </ItemGroup>

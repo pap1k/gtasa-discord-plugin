@@ -81,11 +81,23 @@ void MainThread()
 	}
 	display_pos = ini["discord_activity"]["display_location"] == "1";
 
+	//getting json with zones
+	using json = nlohmann::json;
+	
+	URLDownloadToFile(NULL, L"https://github.com/pap1k/gtasa-discord-plugin/locations.json", JSON_FILE, 0, NULL);
+
+	std::fstream f(JSON_FILE);
+	json data = json::parse(f)["locations"];
+	f.close();
+	//-
+
 	while (*(DWORD*)0xC8D4C0 != 9)
 		Sleep(350);
 
 	pGame = new Game();
 	
+	pGame->FillZones(data);
+
 	bool dsloop = true;
 	time_t lastUpdatetime = time(0);
 	time_t startTimestamp = time(0);
