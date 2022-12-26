@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "dllmain.h"
 
 enum server {
@@ -84,9 +85,14 @@ void MainThread()
 	//getting json with zones
 	using json = nlohmann::json;
 	
-	URLDownloadToFile(NULL, L"https://github.com/pap1k/gtasa-discord-plugin/locations.json", JSON_FILE, 0, NULL);
+	std::string s = (std::getenv("TEMP") + std::string("\\") + JSON_FILE);
+	LPCWSTR path = std::wstring(s.begin(), s.end()).c_str();
 
-	std::fstream f(JSON_FILE);
+	std::cout << s << std::endl;
+	URLDownloadToFile(NULL, L"https://raw.githubusercontent.com/pap1k/gtasa-discord-plugin/master/locations.json", path, BINDF_GETNEWESTVERSION, NULL);
+	std::cout << "after" << std::endl;
+	std::fstream f(s);
+	std::cout << "after2" << std::endl;
 	json data = json::parse(f)["locations"];
 	f.close();
 	//-
